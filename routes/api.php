@@ -13,6 +13,15 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+// Redirect any unathenticated requests to the API documentation.
+Route::any('/', 'DocumentationController@index')->name('login');
+
+Route::group(['middleware' => ['auth:api']], function()
+{
+    Route::get   ('tasks',        'TaskController@index');
+    Route::post  ('tasks',        'TaskController@create');
+    Route::get   ('tasks/{task}', 'TaskController@read');
+    Route::put   ('tasks/{task}', 'TaskController@update');
+    Route::delete('tasks/{task}', 'TaskController@delete');
 });
+

@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Route;
 
 class Handler extends ExceptionHandler
 {
@@ -44,6 +45,15 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        // Replace the default behavior for a 404 response on requests to the API.
+        if (preg_match('/^api\//', Route::getCurrentRoute()->uri))
+        {
+            if ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException)
+            {
+                return response()->json(['status' => 'failure', 'message' => 'Resource Not Found', 'payload' => []], 404);
+            }
+        }
+
         return parent::render($request, $exception);
     }
 
